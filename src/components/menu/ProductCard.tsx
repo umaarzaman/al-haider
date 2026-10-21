@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, Minus, ShoppingCart, AlertCircle } from 'lucide-react'
+import { Plus, AlertCircle } from 'lucide-react'
 import { type Product } from '@/data/menu'
 import { useCartStore } from '@/store/cart'
 import { formatPrice } from '@/lib/utils'

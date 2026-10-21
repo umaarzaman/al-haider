@@ -3,8 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { motion } from 'framer-motion'
-import { ArrowLeft, CheckCircle } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import { useCartStore } from '@/store/cart'
 import { formatPrice, generateOrderRef } from '@/lib/utils'
 import { supabase } from '@/lib/supabase'
@@ -116,6 +115,15 @@ export function CheckoutPage() {
           ...item,
         }))
         await supabase.from('order_items').insert(orderItems)
+      }
+
+      // Store in local storage as reliable client-side cache and offline fallback
+      try {
+        const existing = JSON.parse(localStorage.getItem('ah_recent_orders') || '[]')
+        const updated = [orderPayload, ...existing.filter((o: any) => o.reference !== ref)].slice(0, 20)
+        localStorage.setItem('ah_recent_orders', JSON.stringify(updated))
+      } catch (e) {
+        console.warn('Could not cache order locally:', e)
       }
 
       clearCart()

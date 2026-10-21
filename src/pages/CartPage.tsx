@@ -6,12 +6,9 @@ import { useCartStore } from '@/store/cart'
 import { formatPrice } from '@/lib/utils'
 import { Button } from '@/components/ui/Button'
 
-const DELIVERY_CHARGE = 100
-
 export function CartPage() {
   const { items, updateQuantity, removeItem, subtotal, clearCart } = useCartStore()
   const sub = subtotal()
-  const total = sub > 0 ? sub + DELIVERY_CHARGE : 0
 
   if (items.length === 0) {
     return (

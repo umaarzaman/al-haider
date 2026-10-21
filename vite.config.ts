@@ -13,4 +13,21 @@ export default defineConfig({
       '@': resolve(__dirname, 'src'),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id: string) {
+          if (id.includes('three') || id.includes('@react-three')) {
+            return 'three'
+          }
+          if (id.includes('framer-motion') || id.includes('gsap')) {
+            return 'motion'
+          }
+          if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
+            return 'vendor'
+          }
+        },
+      },
+    },
+  },
 })

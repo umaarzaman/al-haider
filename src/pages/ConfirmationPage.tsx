@@ -74,6 +74,25 @@ export function ConfirmationPage() {
           </p>
         </div>
 
+        {/* Ordered items breakdown if available */}
+        {initialOrder?.items && initialOrder.items.length > 0 && (
+          <div className="bg-[#111] border border-white/8 rounded-xl p-6 mb-6">
+            <h3 className="text-white font-semibold text-sm mb-3">Order Summary</h3>
+            <div className="space-y-2 mb-4">
+              {initialOrder.items.map((item: any, i: number) => (
+                <div key={i} className="flex justify-between text-xs text-white/70">
+                  <span>{item.name} ({item.variant_label}) ×{item.quantity}</span>
+                  <span className="text-white font-medium">{formatPrice(item.line_total)}</span>
+                </div>
+              ))}
+            </div>
+            <div className="border-t border-white/10 pt-3 flex justify-between text-sm text-yellow-400 font-bold">
+              <span>Total Amount</span>
+              <span>{formatPrice(initialOrder.total)}</span>
+            </div>
+          </div>
+        )}
+
         {/* Payment notice */}
         <div className="bg-yellow-400/5 border border-yellow-400/20 rounded-xl p-4 mb-8 text-center">
           <p className="text-yellow-400 text-sm font-medium">💵 Payment: Cash on Delivery</p>

@@ -2,6 +2,8 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import { MapPin, Phone, Clock } from 'lucide-react'
 
+const CURRENT_YEAR = new Date().getFullYear()
+
 export function Footer() {
   return (
     <footer className="bg-black border-t border-white/10 pt-12 pb-6">
@@ -65,7 +67,7 @@ export function Footer() {
 
         <div className="border-t border-white/10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-white/30 text-xs">
-            &copy; {new Date().getFullYear()} Al Haider Fast Food. All rights reserved.
+            &copy; {CURRENT_YEAR} Al Haider Fast Food. All rights reserved.
           </p>
           <p className="text-white/20 text-xs">Powered by modern web technology</p>
         </div>

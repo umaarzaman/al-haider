@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import React, { useState, useEffect, useCallback } from 'react'
+import { useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Search } from 'lucide-react'
 import { supabase, ORDER_STATUS_LABELS, ORDER_STATUS_COLORS, type OrderStatus } from '@/lib/supabase'
@@ -11,38 +11,61 @@ const STATUS_STEPS: OrderStatus[] = [
 
 export function TrackOrderPage() {
   const { ref: paramRef } = useParams<{ ref?: string }>()
-  const navigate = useNavigate()
   const [inputRef, setInputRef] = useState(paramRef ?? '')
   const [order, setOrder] = useState<any>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchOrder = async (reference: string) => {
-    if (!supabase) {
-      setError('Order tracking requires Supabase configuration.')
-      return
-    }
+  const fetchOrder = useCallback(async (reference: string) => {
+    if (!reference.trim()) return
     setLoading(true)
     setError(null)
-    const { data, error: err } = await supabase
-      .from('orders')
-      .select('*, order_items(*)')
-      .eq('reference', reference.toUpperCase())
-      .single()
-    setLoading(false)
-    if (err || !data) {
-      setError('Order not found. Check your reference number.')
-    } else {
-      setOrder(data)
+    const cleanRef = reference.trim().toUpperCase()
+
+    if (supabase) {
+      try {
+        const { data, error: err } = await supabase
+          .from('orders')
+          .select('*, order_items(*)')
+          .eq('reference', cleanRef)
+          .single()
+
+        if (!err && data) {
+          setOrder(data)
+          setLoading(false)
+          return
+        }
+      } catch (e) {
+        console.warn('Error fetching order from Supabase:', e)
+      }
     }
-  }
+
+    // Fallback: check local storage cache
+    try {
+      const local = JSON.parse(localStorage.getItem('ah_recent_orders') || '[]')
+      const match = local.find((o: any) => o.reference === cleanRef)
+      if (match) {
+        setOrder({
+          ...match,
+          order_items: match.items || [],
+        })
+        setLoading(false)
+        return
+      }
+    } catch {}
+
+    setLoading(false)
+    setError('Order not found. Check your reference number or contact us.')
+  }, [])
 
   useEffect(() => {
-    if (paramRef) fetchOrder(paramRef)
-  }, [paramRef])
+    if (paramRef) {
+      void fetchOrder(paramRef)
+    }
+  }, [paramRef, fetchOrder])
 
   useEffect(() => {
-    if (!order || !supabase) return
+    if (!order?.id || !order?.reference || !supabase) return
     const channel = supabase
       .channel(`track-${order.reference}`)
       .on('postgres_changes', {
@@ -54,8 +77,8 @@ export function TrackOrderPage() {
         setOrder((prev: any) => ({ ...prev, ...payload.new }))
       })
       .subscribe()
-    return () => { if (supabase) supabase.removeChannel(channel) }
-  }, [order?.id])
+    return () => { void supabase?.removeChannel(channel) }
+  }, [order?.id, order?.reference])
 
   const currentStepIdx = order ? STATUS_STEPS.indexOf(order.status as OrderStatus) : -1
 

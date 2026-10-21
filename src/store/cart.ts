@@ -1,6 +1,5 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { ProductVariant } from '@/data/menu'
 
 export interface CartItem {
   id: string           // productId-variantId

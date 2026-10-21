@@ -16,8 +16,6 @@ export function Navbar() {
     return () => window.removeEventListener('scroll', handler)
   }, [])
 
-  useEffect(() => setMobileOpen(false), [location.pathname])
-
   const navLinks = [
     { to: '/', label: 'Home' },
     { to: '/menu', label: 'Menu' },
@@ -109,6 +107,7 @@ export function Navbar() {
               <Link
                 key={link.to}
                 to={link.to}
+                onClick={() => setMobileOpen(false)}
                 className={`text-lg font-semibold ${
                   location.pathname === link.to ? 'text-yellow-400' : 'text-white'
                 }`}
@@ -116,7 +115,11 @@ export function Navbar() {
                 {link.label}
               </Link>
             ))}
-            <Link to="/cart" className="text-lg font-semibold text-white flex items-center gap-3">
+            <Link
+              to="/cart"
+              onClick={() => setMobileOpen(false)}
+              className="text-lg font-semibold text-white flex items-center gap-3"
+            >
               <ShoppingCart className="w-5 h-5" /> Cart
               {totalItems > 0 && (
                 <span className="bg-yellow-400 text-black text-xs font-bold px-2 py-0.5 rounded-full">
